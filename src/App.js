@@ -88,6 +88,7 @@ export default function Game() {
       </div>
       <div className="game-info">
         <ol>{moves}</ol>
+        You are at move #{(currentMove + 1)}
       </div>
     </div>
   );
