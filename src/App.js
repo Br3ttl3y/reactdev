@@ -2,7 +2,7 @@ import { useState } from "react";
 
 function Square({ value, onSquareClick }) {
   return (
-    <button 
+    <button
       className="square"
       onClick={onSquareClick}
     >
@@ -27,24 +27,32 @@ function Board({isXNext, squares, onMove}) {
     isWinner + " Wins!" : 
     "Player: " + (isXNext ? 'X' : 'O');
 
+  function ThreeByThreeBoard(){
+    const rows = [];
+    for(let row = 0; row < 3; row++){
+      rows.push(
+        <div key={row} className="board-row">
+          {buildRow(row)}
+        </div>
+      );
+    }
+    
+    return rows;
+  }
+
+  function buildRow(row){
+    const cols = [];
+    for(let col = 0; col < 3; col++){
+      const index = row * 3 + col;
+      cols.push(<Square key={index} value={squares[index]} onSquareClick={() => handleMove(index)} />)
+    }
+    return cols;
+  }
+
   return (
     <>
-    <div className="status">{status}</div>
-      <div className="board-row">
-        <Square value={squares[0]} onSquareClick={() => handleMove(0)} />
-        <Square value={squares[1]} onSquareClick={() => handleMove(1)} />
-        <Square value={squares[2]} onSquareClick={() => handleMove(2)} />
-      </div>
-      <div className="board-row">
-        <Square value={squares[3]} onSquareClick={() => handleMove(3)} />
-        <Square value={squares[4]} onSquareClick={() => handleMove(4)} />
-        <Square value={squares[5]} onSquareClick={() => handleMove(5)} />
-      </div> 
-      <div className="board-row">
-        <Square value={squares[6]} onSquareClick={() => handleMove(6)} />
-        <Square value={squares[7]} onSquareClick={() => handleMove(7)} />
-        <Square value={squares[8]} onSquareClick={() => handleMove(8)} />
-      </div>
+      <div className="status">{status}</div>
+      <ThreeByThreeBoard />
     </>
   );
 }
@@ -116,7 +124,6 @@ function calculateWinner(squares) {
 
 /*
   TODO:
-  * For the current move only, show “You are at move #…” instead of a button.
   * Rewrite Board to use two loops to make the squares instead of hardcoding them.
   * Add a toggle button that lets you sort the moves in either ascending or descending order.
   * When someone wins, highlight the three squares that caused the win (and when no one wins, display a message about the result being a draw).
