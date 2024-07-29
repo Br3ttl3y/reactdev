@@ -12,6 +12,11 @@ function Square({ value, onSquareClick }) {
 }
 
 function Board({isXNext, squares, onMove}) {
+  const isWinner = calculateWinner(squares);
+  let status = isWinner ? 
+    isWinner + " Wins!" : 
+    "Player: " + (isXNext ? 'X' : 'O');
+  
   function handleMove(squareIndex) {
     if(calculateWinner(squares) || squares[squareIndex]){ 
       return; 
@@ -21,11 +26,6 @@ function Board({isXNext, squares, onMove}) {
     nextSquares[squareIndex] = isXNext ? 'X' : 'O';
     onMove(nextSquares);
   }
-
-  const isWinner = calculateWinner(squares);
-  let status = isWinner ? 
-    isWinner + " Wins!" : 
-    "Player: " + (isXNext ? 'X' : 'O');
 
   function ThreeByThreeBoard(){
     const rows = [];
@@ -57,6 +57,36 @@ function Board({isXNext, squares, onMove}) {
   );
 }
 
+function History({history, onJumpTo}){
+  const [isSortAscending, setIsSortAscending] = useState(true);
+
+  const moves = history.map((_, move) =>{
+    const description = move > 0 ? 
+      'Go to move #' + move : 
+        'Go to game start';  
+
+    return (
+      <div key={move}>
+        <button onClick={() => onJumpTo(move)}>
+          {description}
+        </button>
+      </div>
+    );
+  });
+
+  function toggleSortOrder(){
+    setIsSortAscending(!isSortAscending);
+  }
+
+  return (
+    <div className="game-info">
+      Sort Moves: <button onClick={toggleSortOrder}>{isSortAscending ? 'V' : '^'}</button>
+      {isSortAscending ? moves : [...moves].reverse()}
+      You are at move: {history.length}
+    </div>
+  )
+}
+
 export default function Game() {
   const [history, setHistory] = useState([Array(9).fill(null)]);
   const [currentMove, setCurrentMove] = useState(0);
@@ -73,31 +103,12 @@ export default function Game() {
     setCurrentMove(nextMove);
   }
 
-  const moves = history.map((squares, move) => {
-    let description = move > 0 ?
-      'Go to move #' + move :
-      'Go to game start';
-
-      return(
-        <li key={move}>
-          <button 
-            onClick={() => jumpTo(move)}
-          >
-            {description}
-          </button>
-        </li>
-      );
-  });
-
   return (
     <div className="game">
       <div className="game-board">
-        <Board isXNext={isXNext} squares={currentSquares} onMove={handleMove}/>
+        <Board isXNext={isXNext} squares={currentSquares} onMove={handleMove} />
       </div>
-      <div className="game-info">
-        <ol>{moves}</ol>
-        You are at move #{(currentMove + 1)}
-      </div>
+      <History history={history} onJumpTo={jumpTo} />
     </div>
   );
 }
@@ -124,7 +135,6 @@ function calculateWinner(squares) {
 
 /*
   TODO:
-  * Rewrite Board to use two loops to make the squares instead of hardcoding them.
   * Add a toggle button that lets you sort the moves in either ascending or descending order.
   * When someone wins, highlight the three squares that caused the win (and when no one wins, display a message about the result being a draw).
   * Display the location for each move in the format (row, col) in the move history list.
